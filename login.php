@@ -1,5 +1,9 @@
 
 <?php
+	require_once("../config.php");
+	$database = "if15_raoulk";
+	$mysqli = new mysqli($servername, $username, $password, $database);
+
 
 	//errorid
 	$email_error_login = "";
@@ -14,7 +18,7 @@
 	$password_login = "";
 	$first_name = "";
 	$last_name = "";
-	$email_create ="";
+	$email_create = "";
 	$password_create= "";
 	
 	//*********************************************************************************
@@ -27,22 +31,22 @@
 			if ( empty($_POST["email_login"]) ) {
 				$email_error_login = "This field is obligatory, you cannot leave it empty";
 			}else{
-				$email_login = test_input($_POST["email_create"]);
+				$email_login = test_input($_POST["email_login"]);
 			}
 			//kontrollin, et parool ei ole tühi
 		
 			if (empty($_POST["password_login"]) ) {
 				$password_error_login = "This field is obligatory, you cannot leave it empty";
 			}else{
-				$password_login = test_input($POST["password_login"]);
+				$password_login = test_input($_POST["password_login"]);
 			} 
 		
-			if($email_error == "" && $password_error == ""){
+			if($email_error_login == "" && $password_error_login == ""){
 				echo "Ready to log in! Username is ".$email_login."and password is".$password_login;
 			
 				$hash = hash("sha512", $password_login);
 			
-				$stmt = mysqli ->prepare("SELECT id, email FROM user_sample WHERE email=?")
+				$stmt = $mysqli->prepare("SELECT id, email FROM user_sample WHERE email=?");
 				$stmt->bind_param("ss", $email, $hash);
 			
 				//muutujad tulemustele
@@ -92,18 +96,27 @@
 				$last_name = test_input($_POST["last_name"]);
 			}
 			
+		if( $email_error_create== "" && $password_create_error==""){
+					
+			$hash = hash("sha512", $password_create);
+			echo "Ready to create the user! The username is ".$email_create." and password is  ".$password_create." ja räsi on ".$hash;
 			
-	}	
-	
-	
+			$stmt = $mysqli->prepare("INSERT INTO user_sample (email, password) VALUES (?,?)");
+			
+			$stmt->bind_param("ss", $email_create, $hash);
+			$stmt->execute();
+			$stmt->close();
+		}
+	}
+}	
 	function test_input($data) {
-  $data = trim($data);
-  $data = stripslashes($data);
-  $data = htmlspecialchars($data);
-  return $data;
+		$data = trim($data);
+		$data = stripslashes($data);
+		$data = htmlspecialchars($data);
+		return $data;
 }
 	
-	
+	$mysqli->close();
 	
 	
 	
@@ -135,7 +148,7 @@
 	<h2>Create user</h2>
 		
 		<form action="login.php" method="post" >
-			<input name="e-mail_create" type="email" placeholder="e-mail" >*<?php echo $email_error_create; ?> <br><br>
+			<input name="email_create" type="email" placeholder="e-mail" >*<?php echo $email_error_create; ?> <br><br>
 			<input name="password_create" type="password" placeholder="password" >*<?php echo $password_error_create; ?> <br><br><br><br>
 			<input name="first_name" type="text" placeholder="first name" >* <?php echo $first_name_error; ?> <br><br>
 			<input name="last_name" type="text" placeholder="last name" >* <?php echo $last_name_error; ?> <br><br>
@@ -146,4 +159,5 @@
 			
 			
  	
+
 <?php require_once("../footer.php"); ?>	
