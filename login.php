@@ -68,10 +68,10 @@
 		
 	 //***************************************************************************		
 	    if(isset($_POST["create"])){		
-			if (empty($_POST["e-mail_create"])){
+			if (empty($_POST["email_create"])){
 				$email_error_create = "This field is obligatory, you cannot leave it empty";
 			}else{
-				$email_create = test_input($_POST["e-mail_create"]);
+				$email_create = test_input($_POST["email_create"]);
 			}	
 			
 			if (empty($_POST["password_create"])){
@@ -96,25 +96,25 @@
 				$last_name = test_input($_POST["last_name"]);
 			}
 			
-		if( $email_error_create== "" && $password_create_error==""){
+		if( $email_error_create== "" && $password_error_create=="" && $first_name_error=="" && $last_name_error==""){
 					
 			$hash = hash("sha512", $password_create);
-			echo "Ready to create the user! The username is ".$email_create." and password is  ".$password_create." ja räsi on ".$hash;
+			echo "Ready to create the user! The username is ".$email_create." and password is  ".$password_create." and hash is ".$hash.$first_name.$last_name;
 			
-			$stmt = $mysqli->prepare("INSERT INTO user_sample (email, password) VALUES (?,?)");
+			$stmt = $mysqli->prepare("INSERT INTO user_info (email, password, first_name, last_name) VALUES (?,?,?,?)");
 			
-			$stmt->bind_param("ss", $email_create, $hash);
+			$stmt->bind_param("ssss", $email_create, $hash, $first_name, $last_name);
 			$stmt->execute();
 			$stmt->close();
 		}
 	}
 }	
-	function test_input($data) {
-		$data = trim($data);
-		$data = stripslashes($data);
-		$data = htmlspecialchars($data);
-		return $data;
-}
+  function test_input($data) {
+	$data = trim($data);
+	$data = stripslashes($data);
+	$data = htmlspecialchars($data);
+	return $data;
+  }
 	
 	$mysqli->close();
 	
@@ -131,11 +131,6 @@
 
 
 
-
-
-
-		
-		
 	<h2>Log in</h2>
 		
 		<form action="login.php" method="post" >
